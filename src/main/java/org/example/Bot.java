@@ -1,6 +1,7 @@
 package org.example;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.example.nasa.Utils;
 import org.example.question.AbstractQuestion;
 import org.example.question.GitQuestion;
 import org.example.question.JavaQuestion;
@@ -14,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,6 +82,12 @@ public class Bot extends TelegramLongPollingBot {
                 sendText(userId, questions[0].getQuestion());
                 break;
             case "🌌 NASA Image of the Day":
+                try {
+                    String apiKey = dotenv.get("NASA_API_KEY");
+                    sendText(userId, Utils.getUrl("https://api.nasa.gov/planetary/apod?api_key=" + apiKey));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             default :
                 int current = data.getCurrent();
