@@ -9,8 +9,13 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Bot extends TelegramLongPollingBot {
@@ -69,6 +74,13 @@ public class Bot extends TelegramLongPollingBot {
                 sendText(userId, "🧠 Quiz begins!");
                 sendText(userId, questions[0].getQuestion());
                 break;
+            case "🔄 Restart Quiz":
+                data.reset();
+                sendText(userId, "🧠 Quiz begins!");
+                sendText(userId, questions[0].getQuestion());
+                break;
+            case "🌌 NASA Image of the Day":
+                break;
             default :
                 int current = data.getCurrent();
 
@@ -91,9 +103,41 @@ public class Bot extends TelegramLongPollingBot {
                     sendText(userId, questions[data.getCurrent()].getQuestion());
                 } else {
                     sendText(userId, "🎉 Quiz finished! Your score: " + data.getScore() + "/" + questions.length);
+                    showCompletionMenu(userId, data);
                 }
         }
 
         System.out.println("[" + userId + "] " + text);
+    }
+
+    private void showCompletionMenu(Long userId, UserData data) {
+        String message = "🎉 Quiz finished! Your score: " + data.getScore() + "/" + questions.length;
+
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add(new KeyboardButton("🔄 Restart Quiz"));
+
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add(new KeyboardButton("🌌 NASA Image of the Day"));
+
+        keyboard.add(row1);
+        keyboard.add(row2);
+
+        keyboardMarkup.setKeyboard(keyboard);
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
+
+        SendMessage sm = SendMessage.builder()
+                .chatId(userId.toString())
+                .text(message)
+                .replyMarkup(keyboardMarkup)
+                .build();
+        try {
+            execute(sm);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
