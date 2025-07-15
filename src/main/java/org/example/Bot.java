@@ -1,10 +1,16 @@
 package org.example;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class Bot extends TelegramLongPollingBot {
+    private final Dotenv dotenv;
+
+    public Bot() {
+        this.dotenv = Dotenv.configure().ignoreIfMissing().load();
+    }
 
     @Override
     public String getBotUsername() {
@@ -13,7 +19,7 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "REDACTED_BOT_TOKEN";
+        return dotenv.get("BOT_TOKEN");
     }
 
     @Override
